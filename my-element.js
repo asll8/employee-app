@@ -1,75 +1,75 @@
-/**
- * @license
- * Copyright 2019 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
+window.process = { env: { NODE_ENV: 'development' } };
 
-import {LitElement, html, css} from 'lit';
+import { LitElement, html, css } from 'lit';
+import { Router } from '@vaadin/router';
+import './dev/components/employee-app.js'
+import './dev/components/employee-list.js'
+import './dev/components/add-new-employee.js'
 
-/**
- * An example element.
- *
- * @fires count-changed - Indicates when the count changes
- * @slot - This element has a slot
- * @csspart button - The button
- */
-export class MyElement extends LitElement {
+class MyElement extends LitElement {
   static get styles() {
     return css`
       :host {
         display: block;
-        border: solid 1px gray;
-        padding: 16px;
-        max-width: 800px;
+        font-family: Arial, sans-serif;
       }
     `;
   }
 
-  static get properties() {
-    return {
-      /**
-       * The name to say "Hello" to.
-       * @type {string}
-       */
-      name: {type: String},
+  connectedCallback() {
+    super.connectedCallback();
 
-      /**
-       * The number of times the button has been clicked.
-       * @type {number}
-       */
-      count: {type: Number},
-    };
+    this.updateComplete.then(() => {
+        const outlet = this.shadowRoot.getElementById('outlet');
+
+        if (outlet) {
+            const router = new Router(outlet);
+            router.setRoutes([
+                { path: '/', component: 'employee-app' },
+                { path: '/employees', component: 'employee-list' },
+                { path: '/employees/new', component: 'add-new-employee' },
+                { path: '/employees/edit', component: 'add-new-employee' },
+                {
+                    path: '(.*)',
+                    action: () => {
+                        console.error('Page not found');
+                    },
+                },
+            ]);
+            window.addEventListener('location-changed', () => {
+                router.render(window.location.pathname);
+            });
+        } else {
+            console.error('Outlet element not found');
+        }
+    });
+
+    this.handleLocationChange = this.handleLocationChange.bind(this);
+    window.addEventListener('location-changed', this.handleLocationChange);
+}
+  
+  disconnectedCallback() {
+    super.disconnectedCallback();
+      window.removeEventListener('location-changed', this.handleLocationChange);
   }
-
-  constructor() {
-    super();
-    this.name = 'World';
-    this.count = 0;
+  
+  handleLocationChange(event) {
+    const { employee, mode } = event.detail || {};
+  
+    if (window.location.pathname === '/dev/employees/edit') {
+      const editForm = this.shadowRoot.querySelector('add-new-employee');
+      if (editForm) {
+        editForm.mode = mode;
+        editForm.selectedEmployee = employee;
+      }
+    }
   }
 
   render() {
     return html`
-      <h1>${this.sayHello(this.name)}!</h1>
-      <button @click=${this._onClick} part="button">
-        Click Count: ${this.count}
-      </button>
-      <slot></slot>
+      <div id="outlet"></div>
     `;
-  }
-
-  _onClick() {
-    this.count++;
-    this.dispatchEvent(new CustomEvent('count-changed'));
-  }
-
-  /**
-   * Formats a greeting
-   * @param name {string} The name to say "Hello" to
-   * @returns {string} A greeting directed at `name`
-   */
-  sayHello(name) {
-    return `Hello, ${name}`;
   }
 }
 
-window.customElements.define('my-element', MyElement);
+customElements.define('my-element', MyElement);
