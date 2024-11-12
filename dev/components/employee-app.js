@@ -60,8 +60,8 @@ class EmployeeApp extends LitElement {
     constructor() {
         super();
         this.menuItems = [
-            { label: "Employees", path: "/dev/employees" },
-            { label: "Add New Employee", path: "/dev/employees/new" },
+            { label: localize("employees"), path: "/dev/employees" },
+            { label: localize("addEmployeeHeader"), path: "/dev/employees/new" },
         ];
         this.employees = [];
     }
