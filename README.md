@@ -1,3 +1,7 @@
+![image](https://github.com/user-attachments/assets/dc12c84c-2b54-4d34-b2e4-72ea22df8dc6)
+![image](https://github.com/user-attachments/assets/72129e85-09bc-4255-9018-54811943ee13)
+
+
 # LitElement JavaScript starter
 
 This project includes a sample component using LitElement with JavaScript.
